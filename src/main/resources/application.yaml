@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:F13ynbgj91D!}
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+logging:
+  level:
+    org.hibernate: INFO
+
+
+user-agent-settings:
+  users:
+    - "HeliontSearchBot/1.0"
+    - "AnotherBot/1.0"
+  referrer: "http://www.google.com"
+
+indexing-settings:
+  sites:
+    #    - url: http://www.playback.ru
+    #    name: PlayBack.Ru
+    #  - url: https://motovar.ru/
+    #     name: Продажа запчастей и расходных материалов
+    - url: https://academynsk.ru/
+      name: Салон красоты
