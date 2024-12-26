@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import searchengine.dto.indexing.Response;
-import searchengine.dto.indexing.SearchResultsResponse;
+import searchengine.dto.search.Response;
+import searchengine.dto.search.SearchResultsResponse;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.services.IndexPageService;
 import searchengine.services.IndexingService;
@@ -13,7 +13,6 @@ import searchengine.services.SearchService;
 import searchengine.services.StatisticsService;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 @RestController

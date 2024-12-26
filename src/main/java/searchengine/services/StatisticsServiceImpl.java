@@ -31,7 +31,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public StatisticsResponse getStatistics() {
-        // Формируем общую статистику
+
         TotalStatistics totalStatistics = new TotalStatistics();
         List<Site> sites = siteRepository.findAll();
 
@@ -44,7 +44,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         totalStatistics.setLemmas(totalLemmas);
         totalStatistics.setIndexing(isIndexing);
 
-        // Формируем детализированную статистику
+
         List<DetailedStatisticsItem> detailedStatistics = new ArrayList<>();
         for (Site site : sites) {
             DetailedStatisticsItem item = new DetailedStatisticsItem();
@@ -58,12 +58,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             detailedStatistics.add(item);
         }
 
-        // Собираем полную статистику
+
         StatisticsData statisticsData = new StatisticsData();
         statisticsData.setTotal(totalStatistics);
         statisticsData.setDetailed(detailedStatistics);
 
-        // Формируем ответ
+
         StatisticsResponse response = new StatisticsResponse();
         response.setResult(true);
         response.setStatistics(statisticsData);

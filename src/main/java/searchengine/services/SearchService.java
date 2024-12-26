@@ -1,6 +1,6 @@
 package searchengine.services;
 
-import searchengine.dto.indexing.SearchResultsResponse;
+import searchengine.dto.search.SearchResultsResponse;
 
 public interface SearchService {
 

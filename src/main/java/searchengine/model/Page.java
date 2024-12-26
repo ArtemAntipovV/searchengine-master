@@ -54,10 +54,10 @@ public class Page {
 
     public Page(String url, String content, Site site, int responseCode) throws MalformedURLException {
         this.url = url;
-        this.path = new URL(url).getPath(); // URL страницы
-        this.content = content; // Содержимое страницы
-        this.site = site; // Сайт, к которому относится страница
-        this.code = responseCode; // HTTP код ответа
+        this.path = new URL(url).getPath();
+        this.content = content;
+        this.site = site;
+        this.code = responseCode;
     }
 
     public String getTitle() {

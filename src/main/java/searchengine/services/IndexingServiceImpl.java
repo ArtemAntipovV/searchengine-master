@@ -7,7 +7,7 @@ import searchengine.config.CrawlPageTask;
 
 import searchengine.config.SiteConfig;
 import searchengine.config.UserAgent;
-import searchengine.dto.indexing.Response;
+import searchengine.dto.search.Response;
 
 
 import searchengine.model.Site;
