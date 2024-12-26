@@ -20,7 +20,7 @@
 * Spring Boot
 * Apache Lucene 
 * lombook
-* Jsop 1.17.2
+* Jsop 1.18.1
 * Hibernate
 
 ## Запуск проекта
