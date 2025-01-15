@@ -40,7 +40,7 @@ public class ApiController {
             @RequestParam String query,
             @RequestParam(required = false) String site,
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "20") int limit
+            @RequestParam(defaultValue = "100") int limit
     ) {
         try {
             if (query == null || query.isBlank()) {

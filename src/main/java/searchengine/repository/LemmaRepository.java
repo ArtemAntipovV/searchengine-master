@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import searchengine.model.Lemma;
 import searchengine.model.Site;
-
 import java.util.List;
+
 
 
 @Repository
@@ -32,4 +32,9 @@ public interface LemmaRepository extends JpaRepository<Lemma, Integer> {
 
     @Query("SELECT l.lemma, COUNT(l.id) FROM Lemma l WHERE l.lemma IN :lemmas GROUP BY l.lemma")
     List<Object[]> findLemmaFrequencies(@Param("lemmas") List<String> lemmas);
+
+    @Query("SELECT l FROM Lemma l WHERE l.lemma = :lemma AND l.site = :site")
+    List<Lemma> findByLemmaAndSite(@Param("lemma") String lemma, @Param("site") Site site);
+
+
 }

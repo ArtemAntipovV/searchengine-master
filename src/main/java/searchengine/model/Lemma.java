@@ -38,4 +38,10 @@ public class Lemma {
 
     @ManyToMany(mappedBy = "lemmas")
     private List<Page> pages;
+
+    @Override
+    public String toString() {
+        return "Lemma{id=" + id + ", lemma='" + lemma + "', frequency=" + frequency + "}";
+    }
+
 }

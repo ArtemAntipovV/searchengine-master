@@ -1,6 +1,5 @@
 package searchengine.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,20 +8,21 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import javax.persistence.*;
+import javax.persistence.Index;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 @Entity
-@Table( name = "page",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"path", "site_id"}))
+@Table(name = "page",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"path", "site_id"}),
+        indexes = {@Index(name = "IDX_path", columnList = "path")}) // Индекс для поля path
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class Page {
 
-    @Column(name = "id", nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,7 +31,7 @@ public class Page {
     @JoinColumn(name = "site_id", nullable = false)
     private Site site;
 
-    @Column(name = "path",columnDefinition = "TEXT", nullable = false)
+    @Column(name = "path", length = 512, nullable = false)
     private String path;
 
     @Column(name = "status_code", nullable = false)
@@ -41,7 +41,7 @@ public class Page {
     private String url;
 
     @Lob
-    @Column(name= "content", columnDefinition = "MEDIUMTEXT", nullable = false)
+    @Column(name = "content", columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
 
     @ManyToMany
@@ -69,5 +69,11 @@ public class Page {
         String title = doc.title();
         return title != null && !title.isEmpty() ? title : "Без заголовка";
     }
+
+    @Override
+    public String toString() {
+        return "Page{id=" + id + ", url='" + url + "', path='" + path + "'}";
+    }
+
 
 }

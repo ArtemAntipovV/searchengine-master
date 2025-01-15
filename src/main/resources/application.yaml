@@ -3,16 +3,28 @@ server:
 
 spring:
   datasource:
-    username: ${DB_USERNAME:}
-    password: ${DB_PASSWORD:}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:F13ynbgj91D!}
     url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-logging:
-  level:
-    org.hibernate: INFO
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+      org.springframework.transaction: DEBUG
+      org.hibernate.transaction: DEBUG
 
 
 user-agent-settings:
@@ -23,9 +35,9 @@ user-agent-settings:
 
 indexing-settings:
   sites:
-    #    - url: http://www.playback.ru
-    #    name: PlayBack.Ru
-    #  - url: https://motovar.ru/
-    #     name: Продажа запчастей и расходных материалов
-    - url: https://academynsk.ru/
-      name: Салон красоты
+    #  - url: http://www.playback.ru
+    #   name: PlayBack.Ru
+    # - url: https://motovar.ru/
+  #   name: Продажа запчастей и расходных материалов
+      - url: https://academynsk.ru/
+        name: Салон красоты

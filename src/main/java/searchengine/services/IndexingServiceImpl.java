@@ -41,7 +41,8 @@ public class IndexingServiceImpl implements IndexingService {
 
     private final Map<String, Boolean> visitedUrls = new ConcurrentHashMap<>();
 
-    private final ForkJoinPool pool = new ForkJoinPool(4);;
+    private final ForkJoinPool pool = new ForkJoinPool(4);
+    ;
     private ExecutorService executorService;
 
 
@@ -160,8 +161,7 @@ public class IndexingServiceImpl implements IndexingService {
         System.out.println("Удаляем старые данные для сайта: " + site.getUrl() + " с ID: " + site.getId());
         pageRepository.deleteAll(pageRepository.findAllBySiteId(site.getId()));
         System.out.println("Старые страницы удалены для сайта: " + site.getUrl());
-        }
-
+    }
 
 
     @Override
@@ -192,9 +192,9 @@ public class IndexingServiceImpl implements IndexingService {
         }
     }
 
-        @Override
-        public boolean isIndexing () {
-            return isIndexing;
-        }
+    @Override
+    public boolean isIndexing() {
+        return isIndexing;
+    }
 
 }

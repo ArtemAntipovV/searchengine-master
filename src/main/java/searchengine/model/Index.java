@@ -11,7 +11,9 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "lemma_index")
+@Table(name = "page_lemma", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"lemma_id", "page_id"})
+})
 public class Index {
 
 
@@ -29,6 +31,18 @@ public class Index {
     @JoinColumn(name="lemma_id", nullable=false, foreignKey = @ForeignKey(name = "FK_index_lemma"))
     private Lemma lemma;
 
-    @Column(name="rank_index", nullable = false)
+    @Column(name="rank_value", nullable = false)
     private float rank;
+
+    @Override
+    public String toString() {
+        return "Index{" +
+                "id=" + id +
+                ", pageId=" + (page != null ? page.getId() : "null") +
+                ", lemmaId=" + (lemma != null ? lemma.getId() : "null") +
+                ", rank=" + rank +
+                '}';
+    }
+
+
 }
