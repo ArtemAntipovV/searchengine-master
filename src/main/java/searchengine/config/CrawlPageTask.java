@@ -78,7 +78,7 @@ public class CrawlPageTask extends RecursiveTask<Void> {
         return null;
     }
 
-    private Elements getElements(String url) throws Exception {
+    public Elements getElements(String url) throws Exception {
         Document doc = Jsoup.connect(url)
                 .ignoreHttpErrors(true)
                 .ignoreContentType(true)
@@ -90,7 +90,7 @@ public class CrawlPageTask extends RecursiveTask<Void> {
         return doc.select("a[href]");
     }
 
-    private List<String> extractNewLinks(Elements elements) {
+    public List<String> extractNewLinks(Elements elements) {
         List<String> links = new ArrayList<>();
         for (org.jsoup.nodes.Element element : elements) {
             String href = element.attr("abs:href");

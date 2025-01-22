@@ -1,12 +1,12 @@
 package searchengine.services;
 
 import lombok.RequiredArgsConstructor;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import searchengine.config.CrawlPageTask;
+import searchengine.config.*;
 
-import searchengine.config.SiteConfig;
-import searchengine.config.UserAgent;
 import searchengine.dto.search.Response;
 
 
@@ -14,7 +14,6 @@ import searchengine.model.Site;
 import searchengine.model.Status;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
-import searchengine.config.SitesList;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -45,6 +44,10 @@ public class IndexingServiceImpl implements IndexingService {
     ;
     private ExecutorService executorService;
 
+    @Autowired
+    private IndexPageService indexPageService;
+
+    private CrawlPageTask crawlPageTask;
 
     @Override
     @Transactional
@@ -123,36 +126,48 @@ public class IndexingServiceImpl implements IndexingService {
         String userAgent = userAgentConfig.getUser(0);
         String referrer = userAgentConfig.getReferrer();
 
-        Site existingSite = null;
 
-        Optional<Site> sites = siteRepository.findByUrl(site.getUrl());
-        if (!sites.isEmpty()) {
-            existingSite = sites.get(); // Берем первую запись
-            System.out.println("Обнаружен существующий сайт: " + existingSite.getUrl());
-        } else {
+        Optional<Site> siteOptional = siteRepository.findByUrl(site.getUrl());
+        if (siteOptional.isEmpty()) {
             System.out.println("Сайт не найден в базе данных: " + site.getUrl());
             return;
         }
 
-        List<RecursiveTask<Void>> tasks = new ArrayList<>();
-        tasks.add(new CrawlPageTask(url, existingSite, pageRepository, siteRepository, visitedUrls, userAgent, referrer));
+        Site existingSite = siteOptional.get();
+        System.out.println("Обнаружен существующий сайт: " + existingSite.getUrl());
 
-        while (!tasks.isEmpty()) {
-            RecursiveTask<Void> task = tasks.remove(tasks.size() - 1);
-            task.fork();
+
+        Queue<String> urlsToVisit = new LinkedList<>();
+        urlsToVisit.add(url);
+
+        while (!urlsToVisit.isEmpty()) {
+            String currentUrl = urlsToVisit.poll();
+
+            if (visitedUrls.containsKey(currentUrl)) {
+                continue;
+            }
+            visitedUrls.put(currentUrl, true);
+
             try {
-                task.join();
-                List<String> newLinks = ((CrawlPageTask) task).getNewLinks();
-                if (newLinks != null && !newLinks.isEmpty()) {
-                    for (String link : newLinks) {
-                        if (!visitedUrls.containsKey(link)) {
-                            visitedUrls.put(link, true);
-                            tasks.add(new CrawlPageTask(link, existingSite, pageRepository, siteRepository, visitedUrls, userAgent, referrer));
-                        }
+                // Индексация текущей страницы
+                boolean indexed = indexPageService.indexPage(currentUrl);
+                if (!indexed) {
+                    System.out.println("Ошибка индексации страницы: " + currentUrl);
+                    continue;
+                }
+
+                CrawlPageTask crawlPageTask = new CrawlPageTask(currentUrl, existingSite, pageRepository, siteRepository, visitedUrls, userAgent, referrer);
+                Elements elements = crawlPageTask.getElements(currentUrl);
+                List<String> newLinks = crawlPageTask.extractNewLinks(elements);
+
+                for (String link : newLinks) {
+                    if (!visitedUrls.containsKey(link)) {
+                        urlsToVisit.add(link);
                     }
                 }
             } catch (Exception e) {
-                System.out.println("Ошибка при обработке страницы: " + e.getMessage());
+                System.out.println("Ошибка при обработке страницы: " + currentUrl);
+                e.printStackTrace();
             }
         }
     }
