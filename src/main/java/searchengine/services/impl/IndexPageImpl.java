@@ -1,20 +1,21 @@
-package searchengine.services;
+package searchengine.services.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Session;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import searchengine.config.HtmlUtils;
-import searchengine.model.Index;
+import searchengine.model.PageLemma;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
 import searchengine.model.Site;
 
-import searchengine.repository.IndexRepository;
+import searchengine.repository.PageLemmaRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
+import searchengine.services.interfaces.IndexPageService;
+import searchengine.services.interfaces.MorphologyService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,7 +34,7 @@ public class IndexPageImpl implements IndexPageService {
     private final PageRepository pageRepository;
     private final MorphologyService morphologyService;
     private final LemmaRepository lemmaRepository;
-    private final IndexRepository indexRepository;
+    private final PageLemmaRepository pageLemmaRepository;
 
 
     @Override
@@ -42,18 +43,14 @@ public class IndexPageImpl implements IndexPageService {
         try {
             System.out.println("Начата индексация страницы: " + url);
 
-
             Site site = findSiteForUrl(url);
             if (site == null) {
                 System.out.println("URL за пределами сайтов: " + url);
                 return false;
             }
 
-
             String path = new URL(url).getPath();
             String finalPath = path.isBlank() ? "/" : path;
-            System.out.println("Путь страницы: " + finalPath);
-
 
             Page page = pageRepository.findByPathAndSiteId(finalPath, site.getId())
                     .stream().findFirst().orElseGet(() -> {
@@ -68,58 +65,42 @@ public class IndexPageImpl implements IndexPageService {
                         }
                         newPage.setCode(200);
                         pageRepository.save(newPage);
-                        System.out.println("Создана новая страница: " + url);
                         return newPage;
                     });
 
-
             HashMap<String, Integer> lemmas = morphologyService.collectLemmas(page.getContent());
             System.out.println("Обнаруженные леммы: " + lemmas);
-
 
             for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
                 String lemmaText = entry.getKey();
                 Integer count = entry.getValue();
 
-                Lemma lemma = lemmaRepository.findByLemmaAndSites(lemmaText, Collections.singletonList(site))
-                        .stream().findFirst().orElseGet(() -> {
+
+                Lemma lemma = lemmaRepository.findByLemma(lemmaText).stream()
+                        .findFirst()
+                        .orElseGet(() -> {
                             Lemma newLemma = new Lemma();
                             newLemma.setLemma(lemmaText);
                             newLemma.setSite(site);
                             newLemma.setFrequency(0);
                             lemmaRepository.save(newLemma);
-                            System.out.println("Создана новая лемма: " + lemmaText);
                             return newLemma;
                         });
 
-
-                lemma.setFrequency(lemma.getFrequency() + 1);
+                lemma.setFrequency(lemma.getFrequency() + count);
                 lemmaRepository.save(lemma);
 
+                PageLemma existingPageLemma = pageLemmaRepository.findByLemmaAndPage(lemma, page)
+                        .stream()
+                        .findFirst()
+                        .orElse(new PageLemma());
 
-                List<Page> pagesWithLemma = pageRepository.findByContentContaining(lemmaText);
-                System.out.println("Страницы, содержащие лемму '" + lemmaText + "': " + pagesWithLemma.size());
+                existingPageLemma.setPage(page);
+                existingPageLemma.setLemma(lemma);
+                existingPageLemma.setRank(existingPageLemma.getRank() + count);
 
-                for (Page pageWithLemma : pagesWithLemma) {
-                    List<Index> existingIndexes = indexRepository.findByLemmaAndPage(lemma, pageWithLemma);
-
-                    if (existingIndexes.isEmpty()) {
-
-                        Index newIndex = new Index();
-                        newIndex.setPage(pageWithLemma);
-                        newIndex.setLemma(lemma);
-                        newIndex.setRank(count);
-                        indexRepository.save(newIndex);
-                        System.out.println("Создана новая связь: Лемма = " + lemma.getLemma() + ", Страница = " + pageWithLemma.getId());
-                    } else {
-
-                        for (Index index : existingIndexes) {
-                            index.setRank(index.getRank() + count);
-                            indexRepository.save(index);
-                            System.out.println("Обновлена связь: Лемма = " + lemma.getLemma() + ", Страница = " + pageWithLemma.getId());
-                        }
-                    }
-                }
+                pageLemmaRepository.save(existingPageLemma);  // Сохраняем или обновляем индекс
+                System.out.println("Индекс обновлен для леммы: " + lemmaText + " на странице: " + page.getId());
             }
 
             System.out.println("Индексация успешно завершена для страницы: " + url);

@@ -7,7 +7,7 @@ import searchengine.model.Site;
 import searchengine.model.Status;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
-import searchengine.services.IndexingServiceImpl;
+import searchengine.services.impl.IndexingServiceImpl;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;

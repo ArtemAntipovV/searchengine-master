@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.jsoup.select.Elements;
@@ -14,6 +14,8 @@ import searchengine.model.Site;
 import searchengine.model.Status;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
+import searchengine.services.interfaces.IndexPageService;
+import searchengine.services.interfaces.IndexingService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;

@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface PageRepository extends JpaRepository<Page, Integer> {
 
-    List<Page> findAllBySiteId(Integer siteId);
+
 
     Optional<Page> findBySiteIdAndUrl(Integer siteId, String url);
     
@@ -33,9 +33,13 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     @Query("SELECT COUNT(p) FROM Page p WHERE p.site = :site")
     int countBySite(@Param("site") Site site);
 
-    @Query("SELECT p FROM Page p JOIN p.lemmas l WHERE l.lemma IN :lemmas AND p.site.id IN :siteIds")
+    @Query("SELECT DISTINCT p FROM Page p " +
+            "JOIN p.pageLemmas i " +
+            "JOIN i.lemma l " +
+            "WHERE l.lemma IN :lemmas AND p.site.id IN :siteIds")
     List<Page> findPagesByLemmasAndSites(@Param("lemmas") List<String> lemmas, @Param("siteIds") List<Integer> siteIds);
 
-    @Query("SELECT p FROM Page p WHERE p.content LIKE %:content%")
-    List<Page> findByContentContaining(@Param("content") String content);
+    @Query("SELECT p FROM Page p WHERE p.site.id = :siteId")
+    List<Page> findAllBySiteId(@Param("siteId") Integer siteId);
+
 }

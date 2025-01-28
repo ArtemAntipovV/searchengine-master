@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Table(name = "page_lemma", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"lemma_id", "page_id"})
 })
-public class Index {
+public class PageLemma {
 
 
     @Id

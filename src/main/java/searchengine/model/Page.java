@@ -44,31 +44,9 @@ public class Page {
     @Column(name = "content", columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
 
-    @ManyToMany
-    @JoinTable(
-            name = "page_lemma",
-            joinColumns = @JoinColumn(name = "page_id"),
-            inverseJoinColumns = @JoinColumn(name = "lemma_id")
-    )
-    private List<Lemma> lemmas;
+    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PageLemma> pageLemmas;
 
-    public Page(String url, String content, Site site, int responseCode) throws MalformedURLException {
-        this.url = url;
-        this.path = new URL(url).getPath();
-        this.content = content;
-        this.site = site;
-        this.code = responseCode;
-    }
-
-    public String getTitle() {
-        if (content == null || content.isEmpty()) {
-            return "Без заголовка";
-        }
-
-        Document doc = Jsoup.parse(content);
-        String title = doc.title();
-        return title != null && !title.isEmpty() ? title : "Без заголовка";
-    }
 
     @Override
     public String toString() {

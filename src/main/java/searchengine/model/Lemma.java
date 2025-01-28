@@ -1,7 +1,6 @@
 package searchengine.model;
 
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
@@ -14,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table
+@Table(name = "lemma")
 public class Lemma {
 
     @Column(name = "id", nullable = false)
@@ -33,11 +32,8 @@ public class Lemma {
     @Column(nullable = false)
     private Integer frequency;
 
-    @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Index> indexes;
-
-    @ManyToMany(mappedBy = "lemmas")
-    private List<Page> pages;
+    @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PageLemma> pageLemmas;
 
     @Override
     public String toString() {

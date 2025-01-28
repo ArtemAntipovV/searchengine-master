@@ -1,13 +1,14 @@
-package searchengine.services;
+package searchengine.services.impl;
 
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.springframework.stereotype.Service;
-import searchengine.model.Index;
+import searchengine.model.PageLemma;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
 import searchengine.model.Site;
-import searchengine.repository.IndexRepository;
+import searchengine.repository.PageLemmaRepository;
 import searchengine.repository.LemmaRepository;
+import searchengine.services.interfaces.MorphologyService;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -17,16 +18,16 @@ import java.util.stream.Collectors;
 public class MorphologyServiceImpl implements MorphologyService {
 
     private final LemmaRepository lemmaRepository;
-    private final IndexRepository indexRepository;
+    private final PageLemmaRepository pageLemmaRepository;
     private final LuceneMorphology luceneMorphology;
     private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ"};
     private final List<String> wordBaseForms = List.of("и|СОЮЗ", "или|СОЮЗ");
 
 
-    public MorphologyServiceImpl(LuceneMorphology luceneMorphology, LemmaRepository lemmaRepository, IndexRepository indexRepository) {
+    public MorphologyServiceImpl(LuceneMorphology luceneMorphology, LemmaRepository lemmaRepository, PageLemmaRepository pageLemmaRepository) {
         this.luceneMorphology = luceneMorphology;
         this.lemmaRepository = lemmaRepository;
-        this.indexRepository = indexRepository;
+        this.pageLemmaRepository = pageLemmaRepository;
     }
 
 
@@ -69,6 +70,7 @@ public class MorphologyServiceImpl implements MorphologyService {
         String text = page.getContent();
         HashMap<String, Integer> lemmas = collectLemmas(text);
 
+
         for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
             String lemmaText = entry.getKey();
             Integer count = entry.getValue();
@@ -90,17 +92,17 @@ public class MorphologyServiceImpl implements MorphologyService {
                 }
 
 
-                List<Index> existingIndexes = indexRepository.findByLemmaAndPage(lemma, page);
-                if (existingIndexes.isEmpty()) {
-                    Index index = new Index();
-                    index.setPage(page);
-                    index.setLemma(lemma);
-                    index.setRank(count);
-                    indexRepository.save(index);
+                List<PageLemma> existingPageLemmas = pageLemmaRepository.findByLemmaAndPage(lemma, page);
+                if (existingPageLemmas.isEmpty()) {
+                    PageLemma pageLemma = new PageLemma();
+                    pageLemma.setPage(page);
+                    pageLemma.setLemma(lemma);
+                    pageLemma.setRank(count);
+                    pageLemmaRepository.save(pageLemma);
                 } else {
-                    for (Index index : existingIndexes) {
-                        index.setRank(index.getRank() + count);
-                        indexRepository.save(index);
+                    for (PageLemma pageLemma : existingPageLemmas) {
+                        pageLemma.setRank(pageLemma.getRank() + count);
+                        pageLemmaRepository.save(pageLemma);
                     }
                 }
 

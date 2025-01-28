@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import searchengine.dto.search.Response;
 import searchengine.dto.search.SearchResultsResponse;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.services.IndexPageService;
-import searchengine.services.IndexingService;
-import searchengine.services.SearchService;
-import searchengine.services.StatisticsService;
+import searchengine.services.interfaces.IndexPageService;
+import searchengine.services.interfaces.IndexingService;
+import searchengine.services.interfaces.SearchService;
+import searchengine.services.interfaces.StatisticsService;
 
 import java.util.Collections;
 import java.util.Map;
@@ -37,32 +37,37 @@ public class ApiController {
 
     @GetMapping("/search")
     public ResponseEntity<SearchResultsResponse> search(
-            @RequestParam String query,
+            @RequestParam(required = false) String query,
             @RequestParam(required = false) String site,
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "100") int limit
+            @RequestParam(defaultValue = "0") int limit
     ) {
         try {
+            // Проверяем, что запрос не пустой
             if (query == null || query.isBlank()) {
-                throw new IllegalArgumentException("Параметр 'query' не задан или пустой");
+                return ResponseEntity.badRequest().body(
+                        new SearchResultsResponse(false, 0, Collections.emptyList(), "Запрос не может быть пустым.")
+                );
             }
-            return ResponseEntity.ok(searchService.search(query, site, offset, limit));
-        } catch (IllegalArgumentException e) {
-            SearchResultsResponse errorResponse = new SearchResultsResponse(
-                    false,
-                    0,
-                    Collections.emptyList(),
-                    e.getMessage()
-            );
-            return ResponseEntity.badRequest().body(errorResponse);
+
+            // Выполняем поиск через сервис
+            SearchResultsResponse searchResponse = searchService.search(query, site, offset, limit);
+
+            // Если данных нет, возвращаем сообщение
+            if (searchResponse.getData().isEmpty()) {
+                return ResponseEntity.ok(
+                        new SearchResultsResponse(true, 0, Collections.emptyList(), "Нет результатов для данного запроса.")
+                );
+            }
+
+            // Возвращаем успешный ответ
+            return ResponseEntity.ok(searchResponse);
+
         } catch (Exception e) {
-            SearchResultsResponse errorResponse = new SearchResultsResponse(
-                    false,
-                    0,
-                    Collections.emptyList(),
-                    "Ошибка сервера"
+            // Возвращаем ошибку сервера
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new SearchResultsResponse(false, 0, Collections.emptyList(), "Внутренняя ошибка сервера")
             );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
