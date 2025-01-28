@@ -43,28 +43,23 @@ public class ApiController {
             @RequestParam(defaultValue = "0") int limit
     ) {
         try {
-            // Проверяем, что запрос не пустой
             if (query == null || query.isBlank()) {
                 return ResponseEntity.badRequest().body(
                         new SearchResultsResponse(false, 0, Collections.emptyList(), "Запрос не может быть пустым.")
                 );
             }
 
-            // Выполняем поиск через сервис
             SearchResultsResponse searchResponse = searchService.search(query, site, offset, limit);
 
-            // Если данных нет, возвращаем сообщение
             if (searchResponse.getData().isEmpty()) {
                 return ResponseEntity.ok(
                         new SearchResultsResponse(true, 0, Collections.emptyList(), "Нет результатов для данного запроса.")
                 );
             }
 
-            // Возвращаем успешный ответ
             return ResponseEntity.ok(searchResponse);
 
         } catch (Exception e) {
-            // Возвращаем ошибку сервера
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new SearchResultsResponse(false, 0, Collections.emptyList(), "Внутренняя ошибка сервера")
             );
