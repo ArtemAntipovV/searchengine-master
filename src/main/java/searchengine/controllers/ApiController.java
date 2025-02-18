@@ -39,31 +39,18 @@ public class ApiController {
     public ResponseEntity<SearchResultsResponse> search(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String site,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "0") int limit
+            @RequestParam(defaultValue = "0") Integer offset,
+            @RequestParam(defaultValue = "20") Integer limit
     ) {
-        try {
-            if (query == null || query.isBlank()) {
-                return ResponseEntity.badRequest().body(
-                        new SearchResultsResponse(false, 0, Collections.emptyList(), "Запрос не может быть пустым.")
-                );
-            }
-
-            SearchResultsResponse searchResponse = searchService.search(query, site, offset, limit);
-
-            if (searchResponse.getData().isEmpty()) {
-                return ResponseEntity.ok(
-                        new SearchResultsResponse(true, 0, Collections.emptyList(), "Нет результатов для данного запроса.")
-                );
-            }
-
-            return ResponseEntity.ok(searchResponse);
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new SearchResultsResponse(false, 0, Collections.emptyList(), "Внутренняя ошибка сервера")
+        if (query == null || query.isBlank()) {
+            return ResponseEntity.badRequest().body(
+                    new SearchResultsResponse(false, 0, Collections.emptyList(), "Запрос не может быть пустым.")
             );
         }
+
+        SearchResultsResponse searchResponse = searchService.search(query, site, offset, limit);
+
+        return ResponseEntity.ok(searchResponse);
     }
 
     @GetMapping("/statistics")

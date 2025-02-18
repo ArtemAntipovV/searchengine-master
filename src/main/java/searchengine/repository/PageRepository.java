@@ -14,8 +14,6 @@ import java.util.Optional;
 @Repository
 public interface PageRepository extends JpaRepository<Page, Integer> {
 
-
-
     Optional<Page> findBySiteIdAndUrl(Integer siteId, String url);
     
     @Query("SELECT p FROM Page p WHERE p.path = :path AND p.site.id = :siteId")
@@ -41,5 +39,6 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
 
     @Query("SELECT p FROM Page p WHERE p.site.id = :siteId")
     List<Page> findAllBySiteId(@Param("siteId") Integer siteId);
+
 
 }

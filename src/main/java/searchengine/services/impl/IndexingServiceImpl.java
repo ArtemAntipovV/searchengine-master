@@ -151,7 +151,6 @@ public class IndexingServiceImpl implements IndexingService {
             visitedUrls.put(currentUrl, true);
 
             try {
-                // Индексация текущей страницы
                 boolean indexed = indexPageService.indexPage(currentUrl);
                 if (!indexed) {
                     System.out.println("Ошибка индексации страницы: " + currentUrl);

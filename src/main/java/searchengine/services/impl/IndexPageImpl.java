@@ -15,7 +15,7 @@ import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 import searchengine.services.interfaces.IndexPageService;
-import searchengine.services.interfaces.MorphologyService;
+import searchengine.services.interfaces.MorphologyProcessor;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,7 +32,7 @@ public class IndexPageImpl implements IndexPageService {
     private EntityManager entityManager;
     private final SiteRepository siteRepository;
     private final PageRepository pageRepository;
-    private final MorphologyService morphologyService;
+    private final LemmaServiceImpl lemmaService;
     private final LemmaRepository lemmaRepository;
     private final PageLemmaRepository pageLemmaRepository;
 
@@ -68,7 +68,7 @@ public class IndexPageImpl implements IndexPageService {
                         return newPage;
                     });
 
-            HashMap<String, Integer> lemmas = morphologyService.collectLemmas(page.getContent());
+            HashMap<String, Integer> lemmas = lemmaService.collectLemmas(page.getContent());
             System.out.println("Обнаруженные леммы: " + lemmas);
 
             for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {

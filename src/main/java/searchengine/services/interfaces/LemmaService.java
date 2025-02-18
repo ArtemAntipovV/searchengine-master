@@ -1,6 +1,6 @@
 package searchengine.services.interfaces;
 
-
+import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
 import searchengine.model.Site;
@@ -8,13 +8,16 @@ import searchengine.model.Site;
 import java.util.HashMap;
 import java.util.List;
 
-public interface MorphologyService {
+public interface LemmaService {
+
+    @Transactional
     HashMap<String, Integer> collectLemmas(String text);
-    List<String> getWords(String text);
-    boolean isNotWord(List<String> words);
+
+
+    @Transactional
     void processOnePage(Page page);
+
+    @Transactional
     void processSite(Site site);
     List<Lemma> findLemmasByName(String word, Site site);
-    String getNormalFormsWords(String word);
-    boolean checkString(String text);
 }
